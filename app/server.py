@@ -10,13 +10,18 @@ from concurrent import futures
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 from diffusers.utils import export_to_video
 
+os.environ["HF_HOME"] = "/data"
+os.environ["HF_DATASETS_CACHE"] = "/data"
+os.environ["TRANSFORMERS_CACHE"] = "/data"
+os.environ["HF_HUB_CACHE"] = "/data"
+
 class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
     def __init__(self):
         print("Initializing pipeline...")
         self.pipe = DiffusionPipeline.from_pretrained(
             "cerspense/zeroscope_v2_576w",
             torch_dtype=torch.float16,
-            cache_dir="/app/cache"
+            cache_dir="/data"
         )
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
         self.pipe.enable_model_cpu_offload()
