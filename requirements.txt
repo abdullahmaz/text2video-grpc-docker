@@ -1,0 +1,10 @@
+grpcio
+grpcio-tools
+protobuf
+torch
+transformers
+diffusers
+accelerate
+imageio
+imageio-ffmpeg
+gradio
