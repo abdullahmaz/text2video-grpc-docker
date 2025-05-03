@@ -10,6 +10,11 @@ from concurrent import futures
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 from diffusers.utils import export_to_video
 
+os.environ["HF_HOME"] = "/app/cache"
+os.environ["HF_DATASETS_CACHE"] = "/app/cache"
+os.environ["TRANSFORMERS_CACHE"] = "/app/cache"
+os.environ["HF_HUB_CACHE"] = "/app/cache"
+
 class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
     def __init__(self):
         print("Initializing pipeline...")
