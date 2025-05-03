@@ -8,3 +8,4 @@ accelerate
 imageio
 imageio-ffmpeg
 gradio
+huggingface_hub
