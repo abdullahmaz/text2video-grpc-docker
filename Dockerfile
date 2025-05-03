@@ -20,4 +20,4 @@ COPY app/ .
 EXPOSE 7860
 
 # Run server in background and frontend as main app
-CMD python3 server.py & python3 frontend.py
+CMD python3 frontend.py & python3 server.py 
