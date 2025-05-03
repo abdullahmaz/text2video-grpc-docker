@@ -15,7 +15,7 @@ COPY app/ .
 # Expose frontend port
 EXPOSE 7860
 
-RUN mkdir -p /app/cache
+RUN mkdir -p /app/hf_cache
 
 # Run server in background and frontend as main app
 CMD python3 server.py & python3 frontend.py
