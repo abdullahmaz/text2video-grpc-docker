@@ -1,6 +1,4 @@
 import os
-os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
-os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 import gradio as gr
 import grpc
 import text2video_pb2
@@ -11,6 +9,10 @@ from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 from diffusers.utils import export_to_video
 import uuid
 import threading
+
+# Set Hugging Face cache directory
+os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
+os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 
 def generate_video(prompt):
     try:
@@ -44,7 +46,8 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         print("Initializing pipeline...")
         self.pipe = DiffusionPipeline.from_pretrained(
             "cerspense/zeroscope_v2_576w",
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            cache_dir=os.environ['HF_HOME']
         )
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
         self.pipe.enable_model_cpu_offload()
