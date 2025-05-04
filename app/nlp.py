@@ -1,5 +1,5 @@
 import os
-os.environ['HF_HOME'] = os.path.join('/app', 'hf_cache')
+os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
 os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 import gradio as gr
 import grpc
