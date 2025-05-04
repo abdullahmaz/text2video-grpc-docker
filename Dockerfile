@@ -33,4 +33,4 @@ RUN mkdir -p videos
 EXPOSE 50051
 
 # Run the app
-CMD ["python", "nlp.py"]
+CMD ["python", "app/nlp.py"]
