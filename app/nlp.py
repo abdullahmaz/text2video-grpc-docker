@@ -43,12 +43,11 @@ def initialize_pipeline():
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def generate_video(prompt):
     global pipe
-    if pipe is None:
-        initialize_pipeline()
 
     prompt = prompt.strip()
     if not prompt:
-        return "Prompt cannot be empty."
+        # Return a tuple with error message and None for the video
+        return gr.update(visible=True, value="Prompt cannot be empty."), None
 
     try:
         output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=35, output_type="pil")
@@ -59,18 +58,40 @@ def generate_video(prompt):
         os.makedirs("videos", exist_ok=True)
         export_to_video(video_frames, output_video_path=video_path)
 
-        return video_path
+        # Return a tuple with empty error message and video path
+        return gr.update(visible=False, value=""), video_path
     except Exception as e:
-        return f"Internal error: {str(e)}"
+        error_message = f"Internal error: {str(e)}"
+        # Return a tuple with error message and None for the video
+        return gr.update(visible=True, value=error_message), None
 
 # Gradio interface
-iface = gr.Interface(
-    fn=generate_video,
-    inputs=gr.Textbox(label="Enter your prompt", placeholder="e.g., A knight fighting a dragon in the clouds"),
-    outputs=gr.Video(label="Generated Video"),
-    title="Text-to-Video Generator",
-    description="Enter a text prompt and generate a video using a gRPC-powered diffusion model.",
-)
+with gr.Blocks() as iface:
+    gr.Markdown("# Text-to-Video Generator")
+    gr.Markdown("Enter a text prompt and generate a video using a gRPC-powered diffusion model.")
+    
+    with gr.Row():
+        prompt_input = gr.Textbox(
+            label="Enter your prompt", 
+            placeholder="e.g., A knight fighting a dragon in the clouds"
+        )
+    
+    with gr.Row():
+        error_box = gr.Textbox(
+            label="Error", 
+            visible=False,
+            interactive=False
+        )
+    
+    with gr.Row():
+        video_output = gr.Video(label="Generated Video")
+    
+    submit_btn = gr.Button("Generate Video")
+    submit_btn.click(
+        fn=generate_video, 
+        inputs=prompt_input, 
+        outputs=[error_box, video_output]
+    )
 
 def serve():
     class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
@@ -84,8 +105,9 @@ def serve():
                 )
 
             try:
-                video_path = generate_video(prompt)
-                if os.path.exists(video_path):
+                # For gRPC we need to handle the response differently
+                error_msg, video_path = generate_video(prompt)
+                if video_path:
                     return text2video_pb2.VideoResponse(
                         video_path=video_path,
                         message="Success",
@@ -94,7 +116,7 @@ def serve():
                 else:
                     return text2video_pb2.VideoResponse(
                         video_path="",
-                        message="Video generation failed.",
+                        message=error_msg.value,
                         status_code=500
                     )
             except Exception as e:
@@ -112,10 +134,13 @@ def serve():
     server.wait_for_termination()
 
 print("Starting Gradio interface...")
-iface.queue()
+
+# Initialize the pipeline at startup
+print("Initializing model (this may take a while)...")
+initialize_pipeline()
 
 # Start the server in a separate thread
-print("Starting server and loading model (this may take a while)...")
+print("Starting server...")
 server_thread = threading.Thread(target=serve)
 server_thread.daemon = True
 server_thread.start()
