@@ -67,6 +67,7 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         try:
             output = self.pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=35, output_type="pil")
             video_frames = output.frames[0]
+            print(f"Generated {len(video_frames)} frames.")
 
             video_filename = f"{uuid.uuid4()}.mp4"
             video_path = os.path.join("videos", video_filename)
@@ -79,6 +80,7 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
                 status_code=200
             )
         except Exception as e:
+            print(f"Error during video generation: {str(e)}")
             return text2video_pb2.VideoResponse(
                 video_path="",
                 message=f"Internal error: {str(e)}",
