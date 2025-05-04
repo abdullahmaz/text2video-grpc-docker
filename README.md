@@ -167,7 +167,7 @@ message VideoResponse {
 
 ---
 
-## 👤 Author
+## 👤 Authors
 
 **Abdullah Mazhar**
 **Katrina Bodani**
