@@ -10,10 +10,27 @@ pinned: false
 hardware: gpu
 ---
 
-# Text2Video gRPC Docker Space
+# Text-to-Video Generator 🎥
 
-This Hugging Face Space uses a gRPC backend to generate videos from text prompts using the `zeroscope_v2_576w` diffusion model.
+This project implements a Text-to-Video generation microservice using a gRPC backend, powered by the `zeroscope_v2_576w` diffusion model.
 
-- Built with Python, Gradio, Diffusers, and gRPC
-- Fully Dockerized deployment
-- Server and frontend are launched from one container
+---
+
+## 🚀 Features
+
+- Generate videos from text prompts using Diffusers
+- gRPC API with status-aware responses
+- Fully containerized (Docker)
+- Gradio-based minimal frontend
+- Concurrent request handling
+- Postman-compatible API testing
+
+---
+
+## 📦 Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/text2video-grpc-docker.git
+cd text2video-grpc-docker
