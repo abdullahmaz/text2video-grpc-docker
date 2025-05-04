@@ -14,6 +14,9 @@ import threading
 os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
 os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
+
 def generate_video(prompt):
     try:
         # Connect to gRPC server
@@ -46,13 +49,15 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         print("Initializing pipeline...")
         self.pipe = DiffusionPipeline.from_pretrained(
             "cerspense/zeroscope_v2_576w",
-            torch_dtype=torch.float16,
+            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
             cache_dir=os.environ['HF_HOME'],
             use_safetensors=False
-        )
+        ).to(device)
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
-        self.pipe.enable_model_cpu_offload()
-        self.pipe.enable_vae_slicing()
+        if device == "cuda":
+            self.pipe.enable_model_cpu_offload()
+            self.pipe.enable_vae_slicing()
+
         print("Pipeline ready.")
 
     def Generate(self, request, context):

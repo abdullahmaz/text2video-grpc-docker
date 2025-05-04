@@ -1,10 +1,13 @@
 ---
-title: Text2Video Generator
+title: Text-to-Video Generator
 emoji: 🎥
-colorFrom: indigo
+colorFrom: pink
 colorTo: blue
-sdk: docker
+sdk: gradio
+sdk_version: 4.16.0
+app_file: app/nlp.py
 pinned: false
+hardware: gpu
 ---
 
 # Text2Video gRPC Docker Space
