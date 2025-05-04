@@ -2,8 +2,8 @@ import spaces
 import os
 import gradio as gr
 import grpc
-import text2video_pb2
-import text2video_pb2_grpc
+from . import text2video_pb2
+from . import text2video_pb2_grpc
 import torch
 from concurrent import futures
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler

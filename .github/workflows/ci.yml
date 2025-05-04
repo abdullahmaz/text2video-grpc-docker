@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -19,6 +20,16 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Start gRPC Server in Background
+        run: |
+          python app/nlp.py &
+          echo "Waiting for gRPC server on port 50051..."
+          for i in {1..40}; do
+            nc -z localhost 50051 && echo "Server is up!" && break
+            echo "Waiting... ($i/40)"
+            sleep 3
+          done
 
       - name: Run Unit Tests
         run: |

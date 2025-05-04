@@ -9,3 +9,4 @@ imageio
 imageio-ffmpeg
 gradio
 huggingface_hub
+spaces
