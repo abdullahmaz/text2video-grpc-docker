@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: Text-to-Video Generator
 emoji: 🎥
@@ -34,3 +35,6 @@ This project implements a Text-to-Video generation microservice using a gRPC bac
 ```bash
 git clone https://github.com/yourusername/text2video-grpc-docker.git
 cd text2video-grpc-docker
+=======
+# text2video-grpc-docker
+>>>>>>> 5f5d4273d04a9ad6854a47685bde064c0488091e
