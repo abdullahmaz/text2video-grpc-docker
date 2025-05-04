@@ -1,3 +1,4 @@
+import spaces
 import os
 import gradio as gr
 import grpc
@@ -14,26 +15,53 @@ import threading
 os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
 os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Using device: {device}")
+# Global variable to store the pipeline
+pipe = None
 
+@spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
+def initialize_pipeline():
+    global pipe
+    print("Initializing pipeline...")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    dtype = torch.float16 if device == "cuda" else torch.float32
+
+    pipe = DiffusionPipeline.from_pretrained(
+        "cerspense/zeroscope_v2_576w",
+        torch_dtype=dtype,
+        cache_dir=os.environ['HF_HOME'],
+        use_safetensors=False
+    ).to(device)
+
+    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+
+    if device == "cuda":
+        pipe.enable_model_cpu_offload()
+        pipe.enable_vae_slicing()
+
+    print("Pipeline ready.")
+
+@spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def generate_video(prompt):
+    global pipe
+    if pipe is None:
+        initialize_pipeline()
+
+    prompt = prompt.strip()
+    if not prompt:
+        return "Prompt cannot be empty."
+
     try:
-        # Connect to gRPC server
-        channel = grpc.insecure_channel('localhost:50051')
-        stub = text2video_pb2_grpc.VideoGeneratorStub(channel)
+        output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=35, output_type="pil")
+        video_frames = output.frames[0]
 
-        # Send request
-        request = text2video_pb2.TextPrompt(prompt=prompt)
-        response = stub.Generate(request)
+        video_filename = f"{uuid.uuid4()}.mp4"
+        video_path = os.path.join("videos", video_filename)
+        os.makedirs("videos", exist_ok=True)
+        export_to_video(video_frames, output_video_path=video_path)
 
-        # Check status
-        if response.status_code == 200 and os.path.exists(response.video_path):
-            return response.video_path
-        else:
-            return f"Error {response.status_code}: {response.message}"
+        return video_path
     except Exception as e:
-        return f"Exception: {str(e)}"
+        return f"Internal error: {str(e)}"
 
 # Gradio interface
 iface = gr.Interface(
@@ -44,55 +72,38 @@ iface = gr.Interface(
     description="Enter a text prompt and generate a video using a gRPC-powered diffusion model.",
 )
 
-class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
-    def __init__(self):
-        print("Initializing pipeline...")
-        self.pipe = DiffusionPipeline.from_pretrained(
-            "cerspense/zeroscope_v2_576w",
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            cache_dir=os.environ['HF_HOME'],
-            use_safetensors=False
-        ).to(device)
-        self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
-        if device == "cuda":
-            self.pipe.enable_model_cpu_offload()
-            self.pipe.enable_vae_slicing()
-
-        print("Pipeline ready.")
-
-    def Generate(self, request, context):
-        prompt = request.prompt.strip()
-        if not prompt:
-            return text2video_pb2.VideoResponse(
-                video_path="",
-                message="Prompt cannot be empty.",
-                status_code=400
-            )
-
-        try:
-            output = self.pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=35, output_type="pil")
-            video_frames = output.frames[0]
-            print(f"Generated {len(video_frames)} frames.")
-
-            video_filename = f"{uuid.uuid4()}.mp4"
-            video_path = os.path.join("videos", video_filename)
-            os.makedirs("videos", exist_ok=True)
-            export_to_video(video_frames, output_video_path=video_path)
-
-            return text2video_pb2.VideoResponse(
-                video_path=video_path,
-                message="Success",
-                status_code=200
-            )
-        except Exception as e:
-            print(f"Error during video generation: {str(e)}")
-            return text2video_pb2.VideoResponse(
-                video_path="",
-                message=f"Internal error: {str(e)}",
-                status_code=500
-            )
-
 def serve():
+    class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
+        def Generate(self, request, context):
+            prompt = request.prompt.strip()
+            if not prompt:
+                return text2video_pb2.VideoResponse(
+                    video_path="",
+                    message="Prompt cannot be empty.",
+                    status_code=400
+                )
+
+            try:
+                video_path = generate_video(prompt)
+                if os.path.exists(video_path):
+                    return text2video_pb2.VideoResponse(
+                        video_path=video_path,
+                        message="Success",
+                        status_code=200
+                    )
+                else:
+                    return text2video_pb2.VideoResponse(
+                        video_path="",
+                        message="Video generation failed.",
+                        status_code=500
+                    )
+            except Exception as e:
+                return text2video_pb2.VideoResponse(
+                    video_path="",
+                    message=f"Internal error: {str(e)}",
+                    status_code=500
+                )
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
     text2video_pb2_grpc.add_VideoGeneratorServicer_to_server(VideoGeneratorServicer(), server)
     server.add_insecure_port('[::]:50051')
@@ -101,7 +112,7 @@ def serve():
     server.wait_for_termination()
 
 print("Starting Gradio interface...")
-iface.queue()  # Enable queuing for better handling of multiple requests
+iface.queue()
 
 # Start the server in a separate thread
 print("Starting server and loading model (this may take a while)...")
