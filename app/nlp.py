@@ -55,7 +55,7 @@ def generate_video(prompt):
         return None, gr.Warning("Prompt cannot be empty. Please enter a description for your video.")
 
     try:
-        output = pipe(prompt, num_inference_steps=50, height=320, width=576, num_frames=40, output_type="pil")
+        output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=40, output_type="pil")
         video_frames = output.frames[0]
 
         video_filename = f"{uuid.uuid4()}.mp4"
