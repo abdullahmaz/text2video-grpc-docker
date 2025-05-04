@@ -23,7 +23,7 @@ jobs:
 
       - name: Start gRPC Server in Background
         run: |
-          python app/nlp.py &
+          python -m app.nlp &
           echo "Waiting for gRPC server on port 50051..."
           for i in {1..40}; do
             nc -z localhost 50051 && echo "Server is up!" && break
