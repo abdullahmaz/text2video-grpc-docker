@@ -47,7 +47,8 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         self.pipe = DiffusionPipeline.from_pretrained(
             "cerspense/zeroscope_v2_576w",
             torch_dtype=torch.float16,
-            cache_dir=os.environ['HF_HOME']
+            cache_dir=os.environ['HF_HOME'],
+            use_safetensors=False
         )
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
         self.pipe.enable_model_cpu_offload()
