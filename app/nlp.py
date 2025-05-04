@@ -1,8 +1,10 @@
+import os
+os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
+os.makedirs(os.environ['HF_HOME'], exist_ok=True)
 import gradio as gr
 import grpc
 import text2video_pb2
 import text2video_pb2_grpc
-import os
 import torch
 from concurrent import futures
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
