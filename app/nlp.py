@@ -14,8 +14,8 @@ import threading
 # Set Hugging Face cache directory
 os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
 os.makedirs(os.environ['HF_HOME'], exist_ok=True)
+os.environ['GRPC_VERBOSITY'] = 'ERROR' 
 
-# Global variable to store the pipeline
 pipe = None
 
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
@@ -44,13 +44,8 @@ def initialize_pipeline():
 def generate_video(prompt):
     global pipe
     
-    # Check if pipe is None and initialize if needed
     if pipe is None:
         initialize_pipeline()
-        
-    # If pipe is still None after initialization attempt, return error
-    if pipe is None:
-        return None, gr.Error("Model initialization failed. Please try again later.")
 
     prompt = prompt.strip()
     if not prompt:
@@ -73,13 +68,12 @@ def generate_video(prompt):
         # Return None for video and error message
         return None, gr.Error(error_message)
 
-# Gradio interface with updated outputs
 iface = gr.Interface(
     fn=generate_video,
     inputs=gr.Textbox(label="Enter your prompt", placeholder="e.g., A knight fighting a dragon in the clouds"),
     outputs=[
         gr.Video(label="Generated Video"),
-        "html"  # This will capture and display the warning/error messages
+        "html"
     ],
     title="Text-to-Video Generator",
     description="Enter a text prompt and generate a video using a gRPC-powered diffusion model.",
@@ -97,7 +91,6 @@ def serve():
                 )
 
             try:
-                # For gRPC we need to handle the return values differently
                 video_path, _ = generate_video(prompt)
                 if video_path and os.path.exists(video_path):
                     return text2video_pb2.VideoResponse(
@@ -127,10 +120,6 @@ def serve():
 
 print("Starting Gradio interface...")
 iface.queue()
-
-# Initialize the pipeline at startup
-print("Initializing model (this may take a while)...")
-initialize_pipeline()
 
 # Start the server in a separate thread
 print("Starting server...")
