@@ -43,6 +43,14 @@ def initialize_pipeline():
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def generate_video(prompt):
     global pipe
+    
+    # Check if pipe is None and initialize if needed
+    if pipe is None:
+        initialize_pipeline()
+        
+    # If pipe is still None after initialization attempt, return error
+    if pipe is None:
+        return None, gr.Error("Model initialization failed. Please try again later.")
 
     prompt = prompt.strip()
     if not prompt:
