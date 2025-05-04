@@ -20,8 +20,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download the model before copying app code
-COPY scripts/download_model.py ./scripts/download_model.py
-RUN python3 ./scripts/download_model.py
+# COPY scripts/download_model.py ./scripts/download_model.py
+# RUN python3 ./scripts/download_model.py
 
 # Copy app files
 COPY . .

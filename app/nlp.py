@@ -41,7 +41,7 @@ class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
     def __init__(self):
         print("Initializing pipeline...")
         self.pipe = DiffusionPipeline.from_pretrained(
-            "./zeroscope-model",
+            "cerspense/zeroscope_v2_576w",
             torch_dtype=torch.float16
         )
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
