@@ -97,4 +97,5 @@ server_thread.daemon = True
 server_thread.start()
 
 # Launch the Gradio interface in the main thread
-iface.launch(share=True)
+print("Launching Gradio interface without sharing...")
+iface.launch(share=False, server_name="0.0.0.0", server_port=7860)
