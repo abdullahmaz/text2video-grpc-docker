@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ### 3. Run Locally
 
 ```bash
-python python -m app.nlp
+python -m app.nlp
 ```
 
 - gRPC server starts at `127.0.0.1:50051`
