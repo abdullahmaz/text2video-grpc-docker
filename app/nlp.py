@@ -42,33 +42,38 @@ def initialize_pipeline():
 
     print("Pipeline ready.")
 
+# Add a semaphore to limit concurrent model access
+model_semaphore = threading.Semaphore(1)
+
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def generate_video(prompt):
     global pipe
     
-    if pipe is None:
-        initialize_pipeline()
+    # Use a semaphore to ensure only one request uses the model at a time
+    with model_semaphore:
+        if pipe is None:
+            initialize_pipeline()
 
-    prompt = prompt.strip()
-    if not prompt:
-        # Return a tuple with error flag and message for Gradio to display
-        return None, gr.Warning("Prompt cannot be empty. Please enter a description for your video.")
+        prompt = prompt.strip()
+        if not prompt:
+            # Return a tuple with error flag and message for Gradio to display
+            return None, gr.Warning("Prompt cannot be empty. Please enter a description for your video.")
 
-    try:
-        output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=40, output_type="pil")
-        video_frames = output.frames[0]
+        try:
+            output = pipe(prompt, num_inference_steps=1, height=320, width=576, num_frames=1, output_type="pil")
+            video_frames = output.frames[0]
 
-        video_filename = f"{uuid.uuid4()}.mp4"
-        video_path = os.path.join("videos", video_filename)
-        os.makedirs("videos", exist_ok=True)
-        export_to_video(video_frames, output_video_path=video_path)
+            video_filename = f"{uuid.uuid4()}.mp4"
+            video_path = os.path.join("videos", video_filename)
+            os.makedirs("videos", exist_ok=True)
+            export_to_video(video_frames, output_video_path=video_path)
 
-        # Return the video path and no warning
-        return video_path, None
-    except Exception as e:
-        error_message = f"Internal error: {str(e)}"
-        # Return None for video and error message
-        return None, gr.Error(error_message)
+            # Return the video path and no warning
+            return video_path, None
+        except Exception as e:
+            error_message = f"Internal error: {str(e)}"
+            # Return None for video and error message
+            return None, gr.Error(error_message)
 
 iface = gr.Interface(
     fn=generate_video,
@@ -113,7 +118,7 @@ def serve():
                     status_code=500
                 )
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=16))
     text2video_pb2_grpc.add_VideoGeneratorServicer_to_server(VideoGeneratorServicer(), server)
     server.add_insecure_port('[::]:50051')
     server.start()

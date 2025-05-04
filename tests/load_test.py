@@ -1,6 +1,9 @@
 import grpc
 import time
 import threading
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import app.text2video_pb2 as pb2
 import app.text2video_pb2_grpc as pb2_grpc
 
