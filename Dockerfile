@@ -43,4 +43,4 @@ ENV HF_HOME=/app/hf_cache
 EXPOSE 50051
 
 # Run the app
-CMD ["python", "app/nlp.py"]
+CMD ["python", "-m", "app.nlp"]
