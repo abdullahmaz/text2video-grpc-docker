@@ -27,7 +27,7 @@ whisper_model = None
 
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def initialize_pipeline():
-    global pipe
+    global pipe, whisper_model
     print("Initializing pipeline...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
@@ -82,7 +82,7 @@ model_semaphore = threading.Semaphore(1)
 
 @spaces.GPU(duration=120)  # Allocate GPU for up to 120 seconds
 def generate_video(audio, text, filter_option):
-    global pipe
+    global pipe, whisper_model
     
     # Use a semaphore to ensure only one request uses the model at a time
     with model_semaphore:
