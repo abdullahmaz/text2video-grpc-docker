@@ -97,11 +97,8 @@ def generate_video(audio, text, filter_option):
         else:
             return None, gr.Warning("Prompt cannot be empty. Please enter a description for your video.")
 
-        prompt = prompt.strip()    
-        video_filename = f"{uuid.uuid4()}.mp4"
-        video_path = os.path.join("videos", video_filename)
-        os.makedirs("videos", exist_ok=True)
-        export_to_video(video_frames, output_video_path=video_path)
+        prompt = prompt.strip()
+        output_path = os.path.join("videos", f"{uuid.uuid4()}.mp4")
 
         try:
             output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=40, output_type="pil")
