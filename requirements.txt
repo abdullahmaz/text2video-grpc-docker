@@ -11,3 +11,4 @@ gradio
 huggingface_hub
 spaces
 git+https://github.com/openai/whisper.git
+opencv-python
