@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class VideoGeneratorStub(object):
-    """Service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -37,14 +36,13 @@ class VideoGeneratorStub(object):
         """
         self.Generate = channel.unary_unary(
                 '/text2video.VideoGenerator/Generate',
-                request_serializer=text2video__pb2.TextPrompt.SerializeToString,
+                request_serializer=text2video__pb2.VideoRequest.SerializeToString,
                 response_deserializer=text2video__pb2.VideoResponse.FromString,
                 _registered_method=True)
 
 
 class VideoGeneratorServicer(object):
-    """Service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def Generate(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -57,7 +55,7 @@ def add_VideoGeneratorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Generate': grpc.unary_unary_rpc_method_handler(
                     servicer.Generate,
-                    request_deserializer=text2video__pb2.TextPrompt.FromString,
+                    request_deserializer=text2video__pb2.VideoRequest.FromString,
                     response_serializer=text2video__pb2.VideoResponse.SerializeToString,
             ),
     }
@@ -69,8 +67,7 @@ def add_VideoGeneratorServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class VideoGenerator(object):
-    """Service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def Generate(request,
@@ -87,7 +84,7 @@ class VideoGenerator(object):
             request,
             target,
             '/text2video.VideoGenerator/Generate',
-            text2video__pb2.TextPrompt.SerializeToString,
+            text2video__pb2.VideoRequest.SerializeToString,
             text2video__pb2.VideoResponse.FromString,
             options,
             channel_credentials,

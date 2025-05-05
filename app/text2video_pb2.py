@@ -24,17 +24,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10text2video.proto\x12\ntext2video\"\x1c\n\nTextPrompt\x12\x0e\n\x06prompt\x18\x01 \x01(\t\"I\n\rVideoResponse\x12\x12\n\nvideo_path\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x13\n\x0bstatus_code\x18\x03 \x01(\x05\x32O\n\x0eVideoGenerator\x12=\n\x08Generate\x12\x16.text2video.TextPrompt\x1a\x19.text2video.VideoResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10text2video.proto\x12\ntext2video\"I\n\x0cVideoRequest\x12\x0e\n\x06prompt\x18\x01 \x01(\t\x12\x12\n\naudio_path\x18\x02 \x01(\t\x12\x15\n\rfilter_option\x18\x03 \x01(\t\"I\n\rVideoResponse\x12\x12\n\nvideo_path\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x13\n\x0bstatus_code\x18\x03 \x01(\x05\x32Q\n\x0eVideoGenerator\x12?\n\x08Generate\x12\x18.text2video.VideoRequest\x1a\x19.text2video.VideoResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'text2video_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_TEXTPROMPT']._serialized_start=32
-  _globals['_TEXTPROMPT']._serialized_end=60
-  _globals['_VIDEORESPONSE']._serialized_start=62
-  _globals['_VIDEORESPONSE']._serialized_end=135
-  _globals['_VIDEOGENERATOR']._serialized_start=137
-  _globals['_VIDEOGENERATOR']._serialized_end=216
+  _globals['_VIDEOREQUEST']._serialized_start=32
+  _globals['_VIDEOREQUEST']._serialized_end=105
+  _globals['_VIDEORESPONSE']._serialized_start=107
+  _globals['_VIDEORESPONSE']._serialized_end=180
+  _globals['_VIDEOGENERATOR']._serialized_start=182
+  _globals['_VIDEOGENERATOR']._serialized_end=263
 # @@protoc_insertion_point(module_scope)

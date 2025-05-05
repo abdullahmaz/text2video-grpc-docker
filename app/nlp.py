@@ -115,19 +115,53 @@ def generate_video(audio, text, filter_option):
         except Exception as e:
             return None, f"Error: {str(e)}"
 
+def call_grpc_server(audio, text, filter_option):
+    with grpc.insecure_channel('localhost:50051') as channel:
+        stub = text2video_pb2_grpc.VideoGeneratorStub(channel)
+
+        request = text2video_pb2.VideoRequest(
+            prompt=text.strip() if text else "",
+            audio_path=audio if audio else "",
+            filter_option=filter_option
+        )
+
+        response = stub.Generate(request)
+        if response.status_code == 200:
+            return response.video_path, f"<div>{response.message}</div>"
+        else:
+            return None, f"<div>{response.message}</div>"
+
 def serve():
     class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         def Generate(self, request, context):
+            # Extract and sanitize fields
             prompt = request.prompt.strip()
-            if not prompt:
+            audio_path = request.audio_path.strip()
+            filter_option = request.filter_option.strip()
+            print("---- Incoming Request ----")
+            print("Prompt:", request.prompt)
+            print("Audio Path:", request.audio_path)
+            print("Filter Option:", request.filter_option)
+
+            # Validate filter option
+            valid_filters = {"None", "Grayscale", "Sepia"}
+            if filter_option not in valid_filters:
                 return text2video_pb2.VideoResponse(
                     video_path="",
-                    message="Prompt cannot be empty.",
+                    message=f"Invalid filter_option '{filter_option}'. Must be one of: {', '.join(valid_filters)}.",
+                    status_code=400
+                )
+
+            # Ensure at least one form of input
+            if not prompt and not audio_path:
+                return text2video_pb2.VideoResponse(
+                    video_path="",
+                    message="Either prompt or audio path must be provided.",
                     status_code=400
                 )
 
             try:
-                video_path, _ = generate_video(prompt)
+                video_path, _ = generate_video(audio_path, prompt, filter_option)
                 if video_path and os.path.exists(video_path):
                     return text2video_pb2.VideoResponse(
                         video_path=video_path,
@@ -147,7 +181,7 @@ def serve():
                     status_code=500
                 )
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
     text2video_pb2_grpc.add_VideoGeneratorServicer_to_server(VideoGeneratorServicer(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
@@ -155,7 +189,7 @@ def serve():
     server.wait_for_termination()
 
 iface = gr.Interface(
-    fn=generate_video,
+    fn=call_grpc_server,
     inputs=[
         gr.Audio(type="filepath", label="🎙 Upload or Record Audio (Optional)"),
         gr.Textbox(label="📝 Enter Text Prompt (Required if no audio)", placeholder="e.g., A knight fighting a dragon in the clouds"),
