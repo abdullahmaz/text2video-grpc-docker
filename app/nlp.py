@@ -16,6 +16,7 @@ import imageio
 import imageio.plugins.ffmpeg
 import cv2
 import whisper
+import numpy as np
 
 # Set Hugging Face cache directory
 os.environ['HF_HOME'] = os.path.join(os.getcwd(), 'hf_cache')
