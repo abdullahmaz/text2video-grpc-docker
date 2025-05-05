@@ -31,6 +31,6 @@ def simulate_load(concurrent_requests=5, prompt="A beach in the metaverse"):
         print(f"Request {i+1}: Status={r['status_code']}, Time={r['response_time']:.2f}s")
 
 if __name__ == "__main__":
-    for c in [1, 2, 4, 8, 16]:
+    for c in [1, 2, 4, 8]:
         print(f"\n--- {c} Concurrent Users ---")
         simulate_load(c)
