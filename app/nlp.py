@@ -98,6 +98,7 @@ def generate_video(audio, text, filter_option):
             return None, gr.Warning("Prompt cannot be empty. Please enter a description for your video.")
 
         prompt = prompt.strip()
+        os.makedirs("videos", exist_ok=True)
         output_path = os.path.join("videos", f"{uuid.uuid4()}.mp4")
 
         try:
