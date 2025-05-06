@@ -22,6 +22,8 @@ This project implements a text-to-video generation microservice using a gRPC bac
 - Generate videos from text prompts using Hugging Face's Diffusers
 - gRPC API with structured response (status code, message, video path)
 - Minimal Gradio frontend for user testing
+- Video filtering options (None, Grayscale, Sepia) for stylized output
+- Audio transcription support using Whisper model
 - Full Docker containerization
 - Concurrent request support via multithreading
 - Postman-compatible testable gRPC API
