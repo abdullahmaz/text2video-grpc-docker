@@ -138,10 +138,14 @@ def serve():
             prompt = request.prompt.strip()
             audio_path = request.audio_path.strip()
             filter_option = request.filter_option.strip()
+            
+            print('\n')
             print("---- Incoming Request ----")
-            print("Prompt:", request.prompt)
-            print("Audio Path:", request.audio_path)
-            print("Filter Option:", request.filter_option)
+            print("Prompt:", prompt)
+            print("Audio Path:", audio_path)
+            print("Filter Option:", filter_option)
+            print('\n')
+
 
             # Validate filter option
             valid_filters = {"None", "Grayscale", "Sepia"}

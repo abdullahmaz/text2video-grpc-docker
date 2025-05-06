@@ -1,0 +1,48 @@
+{
+  "info": {
+    "name": "Text2Video gRPC Microservice Collection",
+    "description": "Postman collection to test the VideoGenerator.Generate gRPC method.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "grpc_host",
+      "value": "127.0.0.1:50051"
+    }
+  ],
+  "item": [
+    {
+      "name": "Generate Video",
+      "request": {
+        "method": "POST",
+        "url": "{{grpc_host}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"prompt\": \"A panda skateboarding in Times Square\",\n  \"audio_path\": \"\",\n  \"filter_option\": \"Grayscale\"\n}"
+        },
+        "description": "Generates a video from a text prompt using the Text2Video gRPC service."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Message confirms success', () => {",
+              "  pm.response.messages.to.include({",
+              "        \"message\": \"Success\"",
+              "  });",
+              "});",
+              "",
+              "pm.test('Status code is 200', () => {",
+              "  pm.response.messages.to.include({",
+              "        \"status_code\": 200",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
