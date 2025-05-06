@@ -9,14 +9,14 @@ class TestText2VideoService(unittest.TestCase):
         self.stub = pb2_grpc.VideoGeneratorStub(self.channel)
 
     def test_generate_success(self):
-        prompt = pb2.TextPrompt(prompt="A futuristic city under the sea")
-        response = self.stub.Generate(prompt)
+        request = pb2.VideoRequest(prompt="A futuristic city under the sea", audio_path="", filter_option="None")
+        response = self.stub.Generate(request)
         self.assertEqual(response.status_code, 200)
         self.assertIn(".mp4", response.video_path)
 
     def test_generate_empty_prompt(self):
-        prompt = pb2.TextPrompt(prompt="")
-        response = self.stub.Generate(prompt)
+        request = pb2.VideoRequest(prompt="", audio_path="", filter_option="None")
+        response = self.stub.Generate(request)
         self.assertEqual(response.status_code, 400)
 
 if __name__ == "__main__":
