@@ -115,6 +115,7 @@ def generate_video(audio, text, filter_option):
         except Exception as e:
             return None, f"Error: {str(e)}"
 
+# Interaction with Server
 def call_grpc_server(audio, text, filter_option):
     with grpc.insecure_channel('localhost:50051') as channel:
         stub = text2video_pb2_grpc.VideoGeneratorStub(channel)
@@ -131,6 +132,7 @@ def call_grpc_server(audio, text, filter_option):
         else:
             return None, f"<div>{response.message}</div>"
 
+# Server
 def serve():
     class VideoGeneratorServicer(text2video_pb2_grpc.VideoGeneratorServicer):
         def Generate(self, request, context):
@@ -192,6 +194,7 @@ def serve():
     print("Server running on port 50051...")
     server.wait_for_termination()
 
+# Interface
 iface = gr.Interface(
     fn=call_grpc_server,
     inputs=[
