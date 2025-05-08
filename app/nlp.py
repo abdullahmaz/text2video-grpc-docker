@@ -136,7 +136,7 @@ def generate_video(audio, text, filter_option):
         output_path = os.path.join("videos", f"{uuid.uuid4()}.mp4")
 
         try:
-            output = pipe(prompt, num_inference_steps=1, height=320, width=576, num_frames=1, output_type="pil")
+            output = pipe(prompt, num_inference_steps=40, height=320, width=576, num_frames=40, output_type="pil")
             frames = output.frames if hasattr(output, "frames") else output.images
             export_to_video(frames[0], output_video_path=output_path)
 
